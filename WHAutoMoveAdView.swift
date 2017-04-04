@@ -10,9 +10,19 @@ import UIKit
 import Kingfisher
 import Alamofire
 
+protocol WHAutoMoveAdViewDelegate{
+    
+    func selectPic(page: NSInteger)
+    
+}
+
+
+
 class WHAutoMoveAdView: UIView {
 
     fileprivate let scrView = UIScrollView()
+    
+    var delegate: WHAutoMoveAdViewDelegate?
     
     open var autoTime : Timer!
     
@@ -21,7 +31,6 @@ class WHAutoMoveAdView: UIView {
     fileprivate var parentVc: UIViewController!
     
     fileprivate let pageColtrol: UIPageControl = UIPageControl()
-    
     
     //传进来的图片数组
     open var imageArr: [String]? {
@@ -36,18 +45,12 @@ class WHAutoMoveAdView: UIView {
         }
     }
     
-    
-    
     //图片View数组
     var imageViewArr: [UIImageView] = []
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        
         setUpScrView()
-        
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -59,9 +62,6 @@ class WHAutoMoveAdView: UIView {
         
         scrView.frame = CGRect(x: 0, y: 0, width: frame.size.width, height: frame.size.height)
         self .addSubview(scrView)
-        
-        
-//        scrView.contentOffset.x = frame.size.width;
         
         scrView.isPagingEnabled = true
         
@@ -114,6 +114,11 @@ class WHAutoMoveAdView: UIView {
             
             let imageView = UIImageView(frame: CGRect(x: pointX, y: 0, width: frame.size.width, height: frame.size.height))
             
+            imageView.isUserInteractionEnabled = true
+            
+            let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(clickImage(sender:)))
+            
+            imageView.addGestureRecognizer(tap)
             
             imageViewArr.append(imageView)
             
@@ -143,6 +148,19 @@ class WHAutoMoveAdView: UIView {
        changeImageLocation(pageNum: pageNum)
 
     }
+    
+    
+    func clickImage(sender: UITapGestureRecognizer) {
+        
+        
+        guard let delegate = delegate else {
+            return
+        }
+        
+        delegate.selectPic(page: pageNum)
+        
+    }
+    
     
     //MARK: - 定时器触发方法
     func timeChange() {
